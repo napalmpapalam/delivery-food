@@ -19,6 +19,12 @@ const cardsMenu = document.querySelector('.cards-menu');
 
 let login = localStorage.getItem('delivery');
 
+const valid = function(str) {
+  const nameReg = /^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$/;
+
+  return nameReg.test(str)
+}
+
 function toggleModal() {
   modal.classList.toggle('is-open');
 }
@@ -53,7 +59,7 @@ function authorized() {
 function notAuthorized() {
   function logIn(event) {
     event.preventDefault();
-    if (loginInput.value.trim()) {
+    if (valid(loginInput.value.trim())) {
       login = loginInput.value;
 
       localStorage.setItem('delivery', login);
@@ -68,6 +74,7 @@ function notAuthorized() {
     } else {
       loginInput.style.borderColor = 'red';
       loginInput.placeholder = 'Введите логин';
+      loginInput.value = ''
     }
   }
 
@@ -175,3 +182,10 @@ checkAuth();
 createCardRestaurant();
 createCardRestaurant();
 createCardRestaurant();
+
+new Swiper('.swiper-container', {
+  loop: true,
+  autoplay: {
+    delay: 4000,
+  },
+}); 
