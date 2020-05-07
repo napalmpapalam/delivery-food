@@ -174,6 +174,23 @@ function openGoods(event) {
     const restaurant = target.closest('.card-restaurant');
 
     if (restaurant) {
+      getData('/db/partners.json').then((data) => {
+        let matched = data.find(
+          (rest) => rest.products === restaurant.dataset.products
+        );
+
+        const headerSection = menu.querySelector('.section-heading');
+        headerSection.innerHTML = `
+          <h2 class="section-title restaurant-title">${matched.name}</h2>
+          <div class="card-info">
+            <div class="rating">
+              ${matched.stars}
+            </div>
+            <div class="price">От ${matched.price} ₽</div>
+            <div class="category">${matched.kitchen}</div>
+        `;
+      });
+
       cardsMenu.textContent = '';
       containerPromo.classList.add('hide');
       restaurants.classList.add('hide');
