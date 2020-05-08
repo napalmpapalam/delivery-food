@@ -17,8 +17,13 @@ const menu = document.querySelector('.menu');
 const logo = document.querySelector('.logo');
 const cardsMenu = document.querySelector('.cards-menu');
 const inputSearch = document.querySelector('.input-search');
+const modalBody = document.querySelector('.modal-body');
+const modalPrice = document.querySelector('.modal-pricetag');
+const buttonClearCart = document.querySelector('.clear-cart');
 
 let login = localStorage.getItem('delivery');
+
+const cart = [];
 
 const getData = async function (url) {
   const response = await fetch(url);
@@ -55,6 +60,7 @@ function authorized() {
     userName.style.display = '';
     buttonOut.style.display = '';
     buttonOut.removeEventListener('click', logOut);
+    cartButton.style.display = '';
 
     checkAuth();
   }
@@ -63,8 +69,8 @@ function authorized() {
 
   buttonAuth.style.display = 'none';
   userName.style.display = 'inline';
-  buttonOut.style.display = 'block';
-
+  buttonOut.style.display = 'flex';
+  cartButton.style.display = 'flex';
   buttonOut.addEventListener('click', logOut);
 }
 
@@ -134,7 +140,7 @@ function createCardRestaurant({
   cardsRestaurants.insertAdjacentHTML('beforeend', card);
 }
 
-function createCardGood({ description, image, name, price }) {
+function createCardGood({ description, image, name, price, id }) {
   const card = document.createElement('div');
   card.className = 'card';
 
@@ -156,7 +162,7 @@ function createCardGood({ description, image, name, price }) {
             </div>
           </div>
           <div class="card-buttons">
-            <button class="button button-primary button-add-cart">
+            <button class="button button-primary button-add-cart" id="${id}">
               <span class="button-card-text">В корзину</span>
               <span class="button-cart-svg"></span>
             </button>
@@ -205,12 +211,97 @@ function openGoods(event) {
   }
 }
 
+function addToCart(event) {
+  const target = event.target;
+
+  const buttonAddToCart = target.closest('.button-add-cart');
+
+  if (buttonAddToCart) {
+    const card = target.closest('.card');
+    const title = card.querySelector('.card-title-reg').textContent;
+    const cost = card.querySelector('.card-price-bold').textContent;
+    const id = buttonAddToCart.id;
+
+    const food = cart.find((item) => item.id === id);
+
+    if (food) {
+      food.count += 1;
+    } else {
+      cart.push({
+        id,
+        title,
+        cost,
+        count: 1,
+      });
+    }
+  }
+}
+
+function renderCart() {
+  modalBody.textContent = '';
+
+  cart.forEach(({ id, title, cost, count }) => {
+    const itemCart = `
+      <div class="food-row">
+        <span class="food-name">${title}</span>
+        <strong class="food-price">${cost}</strong>
+        <div class="food-counter">
+          <button class="counter-button counter-minus" data-id="${id}">-</button>
+          <span class="counter">${count}</span>
+          <button class="counter-button counter-plus" data-id="${id}">+</button>
+        </div>
+      </div>
+    `;
+
+    modalBody.insertAdjacentHTML('afterbegin', itemCart);
+  });
+
+  const totalPrice = cart.reduce((result, item) => {
+    if (item.count > 1) {
+      return (result += parseFloat(item.cost) * item.count);
+    } else {
+      return (result += parseFloat(item.cost));
+    }
+  }, 0);
+
+  modalPrice.textContent = `Итого: ${totalPrice} ₽`;
+}
+
+function changeCount() {
+  const target = event.target;
+
+  if (target.classList.contains('counter-button')) {
+    const food = cart.find((item) => item.id === target.dataset.id);
+    if (target.classList.contains('counter-minus')) {
+      food.count--;
+
+      if (food.count === 1) cart.splice(cart.indexOf(food), 1);
+    }
+
+    if (target.classList.contains('counter-plus')) food.count++;
+
+    renderCart();
+  }
+}
+
 function init() {
   getData('/db/partners.json').then((data) => {
     data.forEach(createCardRestaurant);
   });
 
-  cartButton.addEventListener('click', toggleModal);
+  cartButton.addEventListener('click', () => {
+    renderCart();
+    toggleModal();
+  });
+
+  buttonClearCart.addEventListener('click', () => {
+    cart.length = 0;
+    renderCart();
+  });
+
+  modalBody.addEventListener('click', changeCount);
+
+  cardsMenu.addEventListener('click', addToCart);
 
   closer.addEventListener('click', toggleModal);
 
