@@ -16,6 +16,7 @@ const restaurants = document.querySelector('.restaurants');
 const menu = document.querySelector('.menu');
 const logo = document.querySelector('.logo');
 const cardsMenu = document.querySelector('.cards-menu');
+const inputSearch = document.querySelector('.input-search');
 
 let login = localStorage.getItem('delivery');
 
@@ -219,6 +220,59 @@ function init() {
     containerPromo.classList.remove('hide');
     restaurants.classList.remove('hide');
     menu.classList.add('hide');
+  });
+
+  inputSearch.addEventListener('keydown', (event) => {
+    if (event.keyCode === 13) {
+      const target = event.target;
+
+      const value = target.value.toLowerCase().trim();
+
+      if (!value || value.length < 3) {
+        target.style.backgroundColor = 'tomato';
+
+        setTimeout(() => (target.style.backgroundColor = ''), 2000);
+
+        return;
+      }
+
+      target.value = '';
+
+      const goods = [];
+
+      getData('/db/partners.json').then((data) => {
+        const products = data.map((item) => item.products);
+
+        products.forEach((product) =>
+          getData(`/db/${product}`)
+            .then((data) => {
+              goods.push(...data);
+
+              const searchGoods = goods.filter((item) =>
+                item.name.toLowerCase().includes(value)
+              );
+              console.log('searchGoods: ', searchGoods);
+
+              const headerSection = menu.querySelector('.section-heading');
+              headerSection.innerHTML = `
+              <h2 class="section-title restaurant-title">Результаты поиска</h2>
+              <div class="card-info">
+                <div class="rating"></div>
+                <div class="price"></div>
+                <div class="category"></div>
+            `;
+
+              cardsMenu.textContent = '';
+              containerPromo.classList.add('hide');
+              restaurants.classList.add('hide');
+              menu.classList.remove('hide');
+
+              return searchGoods;
+            })
+            .then((data) => data.forEach(createCardGood))
+        );
+      });
+    }
   });
 
   checkAuth();
