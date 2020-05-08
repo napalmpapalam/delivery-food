@@ -25,6 +25,16 @@ let login = localStorage.getItem('delivery');
 
 const cart = [];
 
+const loadCart = () => {
+  if (localStorage.getItem(login)) {
+    JSON.parse(localStorage.getItem(login)).forEach((item) => cart.push(item));
+  }
+};
+
+const saveCart = () => {
+  localStorage.setItem(login, JSON.stringify(cart));
+};
+
 const getData = async function (url) {
   const response = await fetch(url);
 
@@ -55,6 +65,7 @@ function toggleModalAuth() {
 function authorized() {
   function logOut() {
     login = null;
+    cart.length = 0;
     localStorage.removeItem('delivery');
     buttonAuth.style.display = '';
     userName.style.display = '';
@@ -66,12 +77,12 @@ function authorized() {
   }
 
   userName.textContent = login;
-
   buttonAuth.style.display = 'none';
   userName.style.display = 'inline';
   buttonOut.style.display = 'flex';
   cartButton.style.display = 'flex';
   buttonOut.addEventListener('click', logOut);
+  loadCart();
 }
 
 function notAuthorized() {
@@ -235,6 +246,7 @@ function addToCart(event) {
       });
     }
   }
+  saveCart();
 }
 
 function renderCart() {
@@ -279,7 +291,7 @@ function changeCount() {
     }
 
     if (target.classList.contains('counter-plus')) food.count++;
-
+    saveCart();
     renderCart();
   }
 }
@@ -297,6 +309,7 @@ function init() {
   buttonClearCart.addEventListener('click', () => {
     cart.length = 0;
     renderCart();
+    localStorage.removeItem(login);
   });
 
   modalBody.addEventListener('click', changeCount);
