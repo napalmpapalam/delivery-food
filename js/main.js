@@ -192,7 +192,7 @@ function openGoods(event) {
     const restaurant = target.closest('.card-restaurant');
 
     if (restaurant) {
-      getData('/db/partners.json').then((data) => {
+      getData('./db/partners.json').then((data) => {
         let matched = data.find(
           (rest) => rest.products === restaurant.dataset.products
         );
@@ -213,7 +213,7 @@ function openGoods(event) {
       containerPromo.classList.add('hide');
       restaurants.classList.add('hide');
       menu.classList.remove('hide');
-      getData(`/db/${restaurant.dataset.products}`).then((data) => {
+      getData(`./db/${restaurant.dataset.products}`).then((data) => {
         data.forEach(createCardGood);
       });
     }
@@ -297,7 +297,7 @@ function changeCount() {
 }
 
 function init() {
-  getData('/db/partners.json').then((data) => {
+  getData('./db/partners.json').then((data) => {
     data.forEach(createCardRestaurant);
   });
 
@@ -344,18 +344,17 @@ function init() {
 
       const goods = [];
 
-      getData('/db/partners.json').then((data) => {
+      getData('./db/partners.json').then((data) => {
         const products = data.map((item) => item.products);
 
         products.forEach((product) =>
-          getData(`/db/${product}`)
+          getData(`./db/${product}`)
             .then((data) => {
               goods.push(...data);
 
               const searchGoods = goods.filter((item) =>
                 item.name.toLowerCase().includes(value)
               );
-              console.log('searchGoods: ', searchGoods);
 
               const headerSection = menu.querySelector('.section-heading');
               headerSection.innerHTML = `
