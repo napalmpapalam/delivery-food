@@ -109,7 +109,6 @@ fabric.properties
 # Local History for Visual Studio Code
 .history/
 
-js/iss.html
 .idea/vcs.xml
 .idea/modules.xml
 .idea/codeStyles/codeStyleConfig.xml
